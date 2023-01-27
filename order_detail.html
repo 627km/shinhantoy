@@ -5,11 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>주문 상세 페이지</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./statics/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
     <script>
         const search = new URLSearchParams(location.search);
         const order_id = search.get('order_id');
-        
+        function deletecomment(comment_id, member_id) {
+            $.ajax({
+                type: 'DELETE',
+                url: 'http://127.0.0.1:8000/api/order/comment/'+ comment_id,
+                
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("Authorization", "JWT " + $("#token").val());
+                },
+                success: (result) => {
+                    alert('댓글 삭제 완료');
+                    location.reload();
+                },
+                fail: (result) => {
+                    alert("토큰을 입력하세요.");
+                }
+            })
+        }
         function submitComment() {
             $.ajax({
                 type: 'POST',
@@ -31,6 +51,12 @@
             })
         }
         $(document).ready(function(){
+            let page = search.get('page')
+
+            if (!page) {
+                page = 1;
+            }
+
             if(order_id > 0) {
                 $.get("http://127.0.0.1:8000/api/order/" + order_id)
                     .then((result) => {
@@ -44,7 +70,7 @@
                         }
                     });
 
-                $.get("http://127.0.0.1:8000/api/order/" + order_id + '/comment')
+                $.get("http://127.0.0.1:8000/api/order/" + order_id + '/comment?page=' + page )
                     .then((result) => {
                         $("#comments").html("");
                         for (let i=0; i<result.results.length; i++) {
@@ -53,35 +79,48 @@
                                 $(`<li class="list-group-item">
                                     ${comment.content}<br><br>
                                     ${comment.member_username} (${comment.tstamp})
+                                    <button class="btn btn-primary text-end" onclick="deletecomment(${comment.id}, ${comment.member})">Delete</button>
                                 </li>`)
                             );
                         }
                     });
             }
         });
-
+        function go_page(page) {
+            window.location.href = `?order_id=${order_id}&page=${page}`;
+        }
     </script>
 </head>
   <body>
     <div class="container">
-        <h1>주문 상세 페이지</h1><hr>
+        <h1 id="detail-title">Stock Order Detail</h1><hr>
         <ul id="order_info"></ul>
         <hr>
+        <h5>Write Comment</h5>
         <div class="mb-3">
-            <label for="content" class="form-label">댓글작성하기</label>
-            <textarea class="form-control" id="content" rows="3" name="content"></textarea>
+            <textarea class="form-control" id="content" rows="3" name="content" placeholder="Content"></textarea>
         </div>
         <div class="text-end">
-            <button class="btn btn-primary" onclick="submitComment()">등록</button>
+            <button class="btn btn-primary" onclick="submitComment()">Submit</button>
         </div>
         <hr>
+        <h5>Write Token</h5>
         <div class="form-group mb-3">
-            <label for="token">토큰</label>
-            <input type="text" class="form-control" id="token" name="token" />
+            <input type="text" class="form-control" id="token" name="token" placeholder="Token"/>
         </div>
+        <hr>
         <ul class="list-group list-group-flush" id="comments">
             <li class="list-group-item">댓글 내용입니다.<br><br>전경민 (2023.01.25 14:21:00)</li>
         </ul>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              <li class="page-item"><a class="page-link" onclick="go_page(1)">1</a></li>
+              <li class="page-item"><a class="page-link" onclick="go_page(2)">2</a></li>
+              <li class="page-item"><a class="page-link" onclick="go_page(3)">3</a></li>
+              <li class="page-item"><a class="page-link" onclick="go_page(4)">4</a></li>
+              <li class="page-item"><a class="page-link" onclick="go_page(5)">5</a></li>
+            </ul>
+        </nav>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   </body>
