@@ -72,6 +72,27 @@
 
                 $.get("http://127.0.0.1:8000/api/order/" + order_id + '/comment?page=' + page )
                     .then((result) => {
+                        page = parseInt(page);
+                        total = result.count;
+                        pages = Math.ceil(total/10);
+
+                        console.log(total)
+                        console.log(pages)
+
+                        for(let i=page-2; i<page+2; i++) {
+                            if(i < 1 || i > pages) {
+                                continue
+                            }
+                            if(i == page){
+                                $("#pagination").append(
+                                    `<li class="page-item"><a class="page-link active" onclick="go_page(${i})">${i}</a></li>`
+                            )    
+                            }else{
+                                $("#pagination").append(
+                                    `<li class="page-item"><a class="page-link" onclick="go_page(${i})">${i}</a></li>`
+                                )
+                            }
+                        }
                         $("#comments").html("");
                         for (let i=0; i<result.results.length; i++) {
                             const comment = result.results[i];
@@ -113,13 +134,7 @@
             <li class="list-group-item">댓글 내용입니다.<br><br>전경민 (2023.01.25 14:21:00)</li>
         </ul>
         <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-              <li class="page-item"><a class="page-link" onclick="go_page(1)">1</a></li>
-              <li class="page-item"><a class="page-link" onclick="go_page(2)">2</a></li>
-              <li class="page-item"><a class="page-link" onclick="go_page(3)">3</a></li>
-              <li class="page-item"><a class="page-link" onclick="go_page(4)">4</a></li>
-              <li class="page-item"><a class="page-link" onclick="go_page(5)">5</a></li>
-            </ul>
+            <ul class="pagination justify-content-center" id="pagination"></ul>
         </nav>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
