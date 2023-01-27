@@ -1,5 +1,6 @@
+*.zip
 **/venv
-
 **/*.pyc
-
 **/__pycache__
+**/*.xlsx
+**/xlsx.py
