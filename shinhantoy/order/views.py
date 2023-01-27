@@ -26,9 +26,7 @@ class OrderDetailView(
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        pk = self.kwargs.get('pk')
-
-        return Order.objects.filter(pk=pk)
+        return Order.objects.all()
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, args, kwargs)
